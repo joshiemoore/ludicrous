@@ -43,7 +43,7 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
 
         // match URI to route
         //\TODO routing
-        if (mg_http_match_uri(hm, "/api"))
+        if (mg_http_match_uri(hm, "/"))
         {
             char* resp = json_encode(test);
             mg_http_reply(
