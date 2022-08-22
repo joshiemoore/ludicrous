@@ -16,7 +16,8 @@ def main():
                 [
                     "src/ludicrous.c",
                     "src/server/server.c",
-                    "src/json/json_encode.c"
+                    "src/json/json_encode.c",
+                    "lib/mongoose/mongoose.c"
                 ],
                 include_dirs=[
                     "include",

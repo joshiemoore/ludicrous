@@ -22,6 +22,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+const char* JSON_TRUE = "true";
+const char* JSON_FALSE = "false";
+const char* JSON_NULL = "null";
+
 
 void _init_json_buffer(JSONSerializationBuffer* buf)
 {
@@ -51,7 +55,7 @@ void _buf_append(JSONSerializationBuffer* buf, const char* str, int n)
     }
 
     // write data to buffer
-    memcpy(buf->data + buf->index + n, str, n);
+    memcpy(buf->data + buf->index, str, n);
     buf->index += n;
 }
 
@@ -86,39 +90,13 @@ void _serialize_object(JSONSerializationBuffer* buf, PyObject* object)
             _serialize_object(buf, value);
 
             // add comma separators
-            if (pos < size - 1)
+            if (pos < size)
             {
                 _buf_append(buf, ",", 1);
             }
         }
 
         _buf_append(buf, "}", 1);
-    }
-    else if (PyUnicode_Check(object))
-    {
-        // serialize string
-        _buf_append(buf, "\"", 1);
-
-        // convert PyUnicode object to UTF-8 encoded byte array,
-        // and write it to the output JSON buffer
-        Py_ssize_t str_size;
-        const char* utf8_str = PyUnicode_AsUTF8AndSize(object, &str_size);
-        if (utf8_str)
-        {
-            _buf_append(buf, utf8_str, str_size);
-        }
-
-        _buf_append(buf, "\"", 1);
-    }
-    else if (PyLong_Check(object))
-    {
-        // serialize integer
-        //\TODO
-    }
-    else if (PyFloat_Check(object))
-    {
-        // serialize float
-        //\TODO
     }
     else if (PyList_Check(object))
     {
@@ -140,22 +118,48 @@ void _serialize_object(JSONSerializationBuffer* buf, PyObject* object)
 
         _buf_append(buf, "]", 1);
     }
+    else if (PyUnicode_Check(object))
+    {
+        // serialize string
+        _buf_append(buf, "\"", 1);
+
+        // convert PyUnicode object to UTF-8 encoded byte array,
+        // and write it to the output JSON buffer
+        Py_ssize_t str_size;
+        const char* utf8_str = PyUnicode_AsUTF8AndSize(object, &str_size);
+        if (utf8_str)
+        {
+            _buf_append(buf, utf8_str, str_size);
+        }
+
+        _buf_append(buf, "\"", 1);
+    }
     else if (PyBool_Check(object))
     {
         // serialize boolean
         if (object == Py_True)
         {
-            _buf_append(buf, "true", 4);
+            _buf_append(buf, JSON_TRUE, 4);
         }
-        else if (object == Py_False)
+        else
         {
-            _buf_append(buf, "false", 5);
+            _buf_append(buf, JSON_FALSE, 5);
         }
+    }
+    else if (PyLong_Check(object))
+    {
+        // serialize integer
+        //\TODO
+    }
+    else if (PyFloat_Check(object))
+    {
+        // serialize float
+        //\TODO
     }
     else if (object == Py_None)
     {
         // serialize None -> null
-        _buf_append(buf, "null", 4);
+        _buf_append(buf, JSON_NULL, 4);
     }
 
     Py_XDECREF(object);
