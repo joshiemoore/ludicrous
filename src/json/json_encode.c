@@ -149,7 +149,11 @@ void _serialize_object(JSONSerializationBuffer* buf, PyObject* object)
     else if (PyLong_Check(object))
     {
         // serialize integer
-        //\TODO
+        char digit_string[32];
+
+        long long value = PyLong_AsLongLong(object);
+        int n = snprintf(digit_string, 32, "%lld", value);
+        _buf_append(buf, digit_string, n);
     }
     else if (PyFloat_Check(object))
     {
