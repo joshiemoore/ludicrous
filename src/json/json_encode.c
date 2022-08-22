@@ -149,6 +149,9 @@ void _serialize_object(JSONSerializationBuffer* buf, PyObject* object)
     else if (PyLong_Check(object))
     {
         // serialize integer
+        //\TODO optimize this to one string write
+        // currently uses two string writes, to create the string and
+        // then to write it to the output buffer
         char integer_string[32];
         long long value = PyLong_AsLongLong(object);
         int n = snprintf(integer_string, 32, "%lld", value);
@@ -157,9 +160,12 @@ void _serialize_object(JSONSerializationBuffer* buf, PyObject* object)
     else if (PyFloat_Check(object))
     {
         // serialize float
-        char float_string[64];
+        //\TODO optimize this to one string write
+        // currently uses two string writes, to create the string and
+        // then to write it to the output buffer
+        char float_string[32];
         double value = PyFloat_AsDouble(object);
-        int n = snprintf(float_string, 64, "%f", value);
+        int n = snprintf(float_string, 32, "%f", value);
         _buf_append(buf, float_string, n);
     }
     else if (object == Py_None)
