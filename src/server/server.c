@@ -25,8 +25,10 @@
 #include <signal.h>
 #include <stdbool.h>
 
+char  SERVER_HOST[256];
+long  SERVER_PORT = 8000;
+char  BIND_STRING[300];
 
-static PyObject* test;
 
 // Handle interrupts, like CTRL+C
 static int s_signo;
@@ -45,15 +47,15 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
         //\TODO routing
         if (mg_http_match_uri(hm, "/"))
         {
-            char* resp = json_encode(test);
-            mg_http_reply(
-                c,
-                200,
-                "Content-Type: application/json\r\n",
-                "%s",
-                resp
-            );
-            free(resp);
+            //char* resp = json_encode(test);
+            //mg_http_reply(
+            //    c,
+            //    200,
+            //    "Content-Type: application/json\r\n",
+            //    "%s",
+            //    resp
+            //);
+            //free(resp);
         }
         else
         {
@@ -63,29 +65,55 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
     }
 }
 
-
-PyObject* ludicrous_runserver(PyObject* self, PyObject* args)
+PyObject* ludicrous_server_run(PyObject* self, PyObject* args, PyObject* kwargs)
 {
-    if (PyArg_ParseTuple(args, "O", &test)) {
-        Py_XINCREF(test);
-    }
-    else return NULL;
-
     printf("Preparing ship for ludicrous speed. . .\n");
+
+    // parse arguments
+    static char* keywords[] = {"host", "port", NULL};
+    char* arg_host = NULL;
+    long arg_port = 0;
+
+    PyArg_ParseTupleAndKeywords(
+        args,
+        kwargs,
+        "|sI",
+        keywords,
+        &arg_host,
+        &arg_port
+    );
+
+    if (arg_host)
+    {
+        snprintf(SERVER_HOST, 256, "%s", arg_host);
+    }
+    else
+    {
+        sprintf(SERVER_HOST, "localhost");
+    }
+
+    if (arg_port)
+    {
+        SERVER_PORT = arg_port;
+    }
+
+    // join host and port into one string to bind to
+    snprintf(BIND_STRING, 300, "%s:%ld", SERVER_HOST, SERVER_PORT);
 
     // initialize mongoose
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
-    struct mg_connection *c = mg_http_listen(&mgr, "0.0.0.0:8002", fn, NULL);
+    struct mg_connection *c = mg_http_listen(&mgr, BIND_STRING, fn, NULL);
 
     if (c == NULL)
     {
-        printf("Failed to bind HTTP server\n");
-        Py_XDECREF(test);
+        //\TODO set error message
+        printf("Failed to bind on %s\n", BIND_STRING);
         return NULL;
     }
 
-    printf("Server started, CTRL+C to stop\n");
+    printf("Server started on %s (CTRL+C to stop)\n", BIND_STRING);
+    fflush(stdout);
 
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
@@ -93,6 +121,5 @@ PyObject* ludicrous_runserver(PyObject* self, PyObject* args)
     // loop until interrupted, handle requests
     while(s_signo == 0) mg_mgr_poll(&mgr, 1000);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }

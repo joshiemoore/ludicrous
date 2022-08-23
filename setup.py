@@ -1,4 +1,4 @@
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 
 
 def main():
@@ -10,9 +10,10 @@ def main():
         author_email="jxm5210@g.rit.edu",
         license="GPLv2",
         url="https://github.com/joshiemoore/ludicrous/",
+        packages=["ludicrous"],
         ext_modules=[
             Extension(
-                "ludicrous",
+                "ludicrous.server",
                 [
                     "src/ludicrous.c",
                     "src/server/server.c",

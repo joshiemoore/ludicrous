@@ -23,20 +23,21 @@
 #include "server.h"
 
 
-static PyMethodDef LudicrousModMethods[] = {
-    {"runserver", ludicrous_runserver, METH_VARARGS, "run ludicrous speed JSON API server"},
+static PyMethodDef LudicrousServerMethods[] = {
+    {"run", (PyCFunction)(void(*)(void))ludicrous_server_run,
+        METH_VARARGS | METH_KEYWORDS, "run ludicrous speed JSON API server"},
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef ludicrousmod = {
+static struct PyModuleDef ludicrous_server = {
     PyModuleDef_HEAD_INIT,
     "ludicrous",
     NULL,
     -1,
-    LudicrousModMethods
+    LudicrousServerMethods
 };
 
-PyMODINIT_FUNC PyInit_ludicrous(void)
+PyMODINIT_FUNC PyInit_server(void)
 {
-    return PyModule_Create(&ludicrousmod);
+    return PyModule_Create(&ludicrous_server);
 }

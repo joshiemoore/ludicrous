@@ -27,6 +27,6 @@
 // main function called from Python
 // this binds the HTTP server to a user-specified address and port
 // and handles incoming requests
-PyObject* ludicrous_runserver(PyObject* self, PyObject* args);
+PyObject* ludicrous_server_run(PyObject* self, PyObject* args, PyObject* kwargs);
 
 #endif
