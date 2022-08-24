@@ -37,16 +37,6 @@ typedef struct _urlnode {
 // return NULL on failure
 URLNode* url_create_node(char* endpoint, PyObject* callback);
 
-// add a child to a URL node
-// initializes the children list if necessary
-// return 1 on success, 0 on failure
-int url_add_child(URLNode* node, URLNode* new_child);
-
-// find immediate child of a node based on the name of the endpoint
-// only searches the children list, does not traverse children
-// returns NULL if the child was not found
-URLNode* url_find_child(URLNode* node, char* endpoint);
-
 // insert a URL into the URL tree
 // root and node should not be null
 // "root" should be the actual root node of the tree

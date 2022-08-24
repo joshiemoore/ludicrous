@@ -40,6 +40,9 @@ URLNode* url_create_node(char* endpoint, PyObject* callback)
     return node;
 }
 
+// add a child to a URL node
+// initializes the children list if necessary
+// return 1 on success, 0 on failure
 int url_add_child(URLNode* node, URLNode* new_child)
 {
     if (!node->children)
@@ -74,6 +77,9 @@ int url_add_child(URLNode* node, URLNode* new_child)
     return 1;
 }
 
+// find immediate child of a node based on the name of the endpoint
+// only searches the children list, does not traverse children
+// returns NULL if the child was not found
 URLNode* url_find_child(URLNode* node, char* endpoint)
 {
     for (int i = 0; i < node->children_count; i++)
