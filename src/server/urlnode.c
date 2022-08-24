@@ -25,19 +25,73 @@
 URLNode* url_create_node(char* endpoint, PyObject* callback)
 {
     URLNode* node = malloc(sizeof(URLNode));
-
     if (!node)
     {
         return NULL;
     }
 
-    node->endpoint = endpoint;
-    node->callback = callback;
-    node->children = NULL;
+    // initialize children array
+    node->children = (URLNode**)malloc(2 * sizeof(URLNode*));
+    if (!node->children)
+    {
+        free(node);
+        return NULL;
+    }
     node->children_count = 0;
-    node->children_size = 0;
+    node->children_size = 2;
+
+    // initialize endpoint name
+    if (endpoint)
+    {
+        int ep_len = strlen(endpoint);
+        char* ep_copy = (char*)malloc(ep_len + 1);
+        if (!ep_copy)
+        {
+            free(node->children);
+            free(node);
+            return NULL;
+        }
+        snprintf(ep_copy, ep_len + 1, "%s", endpoint);
+        node->endpoint = ep_copy;
+    }
+    else
+    {
+        node->endpoint = NULL;
+    }
+
+    // add reference to Python callback function
+    node->callback = callback;
 
     return node;
+}
+
+void url_delete_node(URLNode* node)
+{
+    // delete children
+    if (node->children)
+    {
+        for (int i = 0; i < node->children_count; i++)
+        {
+            url_delete_node(node->children[i]);
+        }
+        free(node->children);
+        node->children = NULL;
+        node->children_count = 0;
+        node->children_size = 0;
+    }
+
+    // delete endpoint name
+    if (node->endpoint)
+    {
+        free(node->endpoint);
+        node->endpoint = NULL;
+    }
+
+    // remove reference to Python callback function
+    node->callback = NULL;
+
+    // finally, free the node itself
+    free(node);
 }
 
 // add a child to a URL node
@@ -45,15 +99,9 @@ URLNode* url_create_node(char* endpoint, PyObject* callback)
 // return 1 on success, 0 on failure
 int url_add_child(URLNode* node, URLNode* new_child)
 {
-    if (!node->children)
+    if (!node || !node->children || !new_child)
     {
-        // initialize children list with a size of 2
-        node->children = (URLNode**)malloc(2 * sizeof(URLNode*));
-        if (!node->children)
-        {
-            return 0;
-        }
-        node->children_size = 2;
+        return 0;
     }
 
     // add new child to children list
@@ -116,11 +164,7 @@ int url_insert(URLNode* root, const char* url, PyObject* callback)
         if (!child)
         {
             // this URL element was not found, so create it
-            int tok_len = strlen(tok);
-            char* tok_copy = (char*)malloc(tok_len + 1);
-            snprintf(tok_copy, tok_len + 1, "%s", tok);
-
-            child = url_create_node(tok_copy, NULL);
+            child = url_create_node(tok, NULL);
             if (!child)
             {
                 return 0;

@@ -25,8 +25,18 @@
 
 // URL paths are stored in a tree structure
 typedef struct _urlnode {
+    // name of the URL node
+    // not actually an "endpoint" unless it's a leaf node,
+    // but I couldn't think of a better name
     char* endpoint;
+
+    // the python function that will be called when this
+    // endpoint is accessed
+    // if callback is NULL, this endpoint will return a
+    // 404 when it is accessed directly
     PyObject* callback;
+
+    // structure for storing this node's children
     struct _urlnode** children;
     int children_count;
     int children_size;
@@ -36,6 +46,9 @@ typedef struct _urlnode {
 // return a pointer to the node on success
 // return NULL on failure
 URLNode* url_create_node(char* endpoint, PyObject* callback);
+
+// delete a URL node and its children
+void url_delete_node(URLNode* node);
 
 // insert a URL into the URL tree
 // root and node should not be null
