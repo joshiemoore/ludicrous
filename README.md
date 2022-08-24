@@ -31,6 +31,15 @@ ludicrous is free software licensed under the terms of the GNU General Public Li
 
 ludicrous doesn't currently support sending JSON data to the server with POST requests, but that is coming very soon!
 
+## Build from source
+1. Clone the repository: `$ git clone https://github.com/joshiemoore/ludicrous.git`
+
+2. Enter the directory: `$ cd ludicrous`
+
+3. Build the library: `$ python3 -m build`
+
+4. Install the library: `$ pip install .`
+
 Note that ludicrous is intended for development and deployment on GNU/Linux and is not tested on any other operating systems.
 
 ## Performance
