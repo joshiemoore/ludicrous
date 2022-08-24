@@ -55,7 +55,15 @@ void _buf_append(JSONSerializationBuffer* buf, const char* str, int n)
     }
 
     // write data to buffer
-    memcpy(buf->data + buf->index, str, n);
+    if (n == 1)
+    {
+        // save a little time by not calling memcpy for one byte
+        buf->data[buf->index] = str[0];
+    }
+    else
+    {
+        memcpy(buf->data + buf->index, str, n);
+    }
     buf->index += n;
 }
 
