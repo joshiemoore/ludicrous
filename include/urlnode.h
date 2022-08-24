@@ -44,6 +44,6 @@ URLNode* url_create_node(char* endpoint, PyObject* callback);
 int url_insert(URLNode* root, const char* url, PyObject* callback);
 
 // find an endpoint in the tree based on a URL
-// returns the endpoint's URLNode if the endpoint exists
+// returns a pointer to the endpoint's URLNode if the endpoint exists
 // returns NULL if the endpoint does not exist
 URLNode* url_find(URLNode* root, struct mg_str url);
