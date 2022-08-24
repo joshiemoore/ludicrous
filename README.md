@@ -103,4 +103,14 @@ Running 30s test @ http://localhost:8000/
   Socket errors: connect 0, read 0, write 0, timeout 29
 Requests/sec:   1480.37
 Transfer/sec:    237.09KB
+
+japronto:
+Running 30s test @ http://localhost:8080/
+  12 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     4.73ms  485.24us  37.59ms   95.00%
+    Req/Sec     6.96k     1.09k   44.18k    96.17%
+  2494095 requests in 30.09s, 247.37MB read
+Requests/sec:  82884.96
+Transfer/sec:      8.22MB
 ```
