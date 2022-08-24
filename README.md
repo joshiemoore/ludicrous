@@ -43,7 +43,7 @@ ludicrous doesn't currently support sending JSON data to the server with POST re
 Note that ludicrous is intended for development and deployment on GNU/Linux and is not tested on any other operating systems.
 
 ## Performance
-ludicrous is being developed around a custom JSON serializer which converts Python objects directly into JSON C strings. We plan to develop ludicrous with a very fast core featureset implemented in C, along with additional opt-in modules that run slower but provide more features than the high-performance core. This plan will become clearer as more features are added.
+ludicrous is being developed around a custom JSON serializer which converts Python objects directly into JSON C strings. We plan to develop ludicrous with a very fast core featureset implemented in C, along with additional opt-in modules that run slower but provide more features than the high-performance core. This plan will become clearer to understand as more features are added.
 
 Preliminary testing on my machine (Ryzen 3 CPU) using [wrk](https://github.com/wg/wrk) shows that ludicrous is able to consistently sustain more than 100,000 requests per second. For simple responses like the hello world sample above, ludicrous is able to average around 130,000+ requests per second.
 
