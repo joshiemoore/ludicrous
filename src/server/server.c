@@ -19,6 +19,7 @@
 
 #include "json.h"
 #include "server.h"
+#include "urlnode.h"
 #include "mongoose.h"
 
 #include <stdio.h>
@@ -31,69 +32,10 @@ long  SERVER_PORT = 8000;
 char  BIND_STRING[300];
 
 
-// URL paths are stored in a binary tree structure
-typedef struct _urlnode {
-    char* endpoint;
-    PyObject* callback;
-    struct _urlnode* left;
-    struct _urlnode* right;
-} URLNode;
-
-// the base of the URL tree, the root endpoint
+// the base of the URL tree (the root endpoint)
 // this gets returned when a request is made to
 // "/", and is also the parent of all other URL nodes
 static URLNode* ROOT_NODE;
-
-// create a new URL node
-URLNode* url_create_node(char* endpoint, PyObject* callback)
-{
-    URLNode* node = malloc(sizeof(URLNode));
-
-    node->endpoint = endpoint;
-    node->callback = callback;
-    node->left = NULL;
-    node->right = NULL;
-
-    return node;
-}
-
-// insert a URL into the URL tree
-// root and node should not be null
-// return 0 if the URL was inserted in the tree
-// return 1 otherwise
-int url_insert(URLNode* root, const char* url, PyObject* callback)
-{
-    printf("Adding route %s\n", url);
-
-    if (!strcmp(url, "/"))
-    {
-        // root node, simply set the callback
-        ROOT_NODE->callback = callback;
-        return 0;
-    }
-
-    const int url_len = strlen(url);
-    char* url_copy = (char*)malloc(url_len + 1);
-    snprintf(url_copy, url_len + 1, "%s", url);
-
-    char* tok = strtok(url_copy, "/");
-    while (tok)
-    {
-        printf("%s\n", tok);
-        tok = strtok(0, "/");
-    }
-
-    free(url_copy);
-    return 0;
-}
-
-// find an endpoint in the tree based on a URL
-// returns the endpoint's URLNode if the endpoint exists
-// returns NULL if the endpoint does not exist
-URLNode* url_find(URLNode* root, struct mg_str url)
-{
-    return NULL;
-}
 
 // Handle interrupts, like CTRL+C
 static int s_signo;
@@ -112,23 +54,35 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
         struct mg_str url = hm->uri;
         PyObject* endpoint_callback = NULL;
 
-        if (!strcmp(url.ptr, "/"))
+        URLNode* endpoint = url_find(ROOT_NODE, url);
+        if (endpoint)
         {
-            // special case, root node
-            endpoint_callback = ROOT_NODE->callback;
-        }
-        else
-        {
-            URLNode* endpoint = url_find(ROOT_NODE, url);
-            if (endpoint)
-            {
-                endpoint_callback = endpoint->callback;
-            }
+            endpoint_callback = endpoint->callback;
         }
 
         if (endpoint_callback)
         {
             // call route handler, then send encoded JSON back to client
+            // TODO add request info object as argument
+            // TODO add URL template params as additional arguments
+            PyObject* response = PyObject_CallNoArgs(endpoint_callback);
+            if (response && response != Py_None)
+            {
+                char* response_text = json_encode(response);
+                mg_http_reply(
+                    c,
+                    200, // TODO return status code from
+                    "Content-Type: application/json\n",
+                    "%s",
+                    response_text
+                );
+                free(response_text);
+            }
+            else
+            {
+                // TODO what to do if the handler does not return a response?
+                mg_http_reply(c, 501, "", "");
+            }
         }
         else
         {
@@ -140,7 +94,7 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
 
 PyObject* ludicrous_server_run(PyObject* self, PyObject* args, PyObject* kwargs)
 {
-    printf("Preparing ship for ludicrous speed. . .\n");
+    printf("Preparing ship for ludicrous speed. . .\n\n");
 
     // parse arguments
     static char* keywords[] = {"host", "port", NULL};
@@ -194,7 +148,12 @@ PyObject* ludicrous_server_run(PyObject* self, PyObject* args, PyObject* kwargs)
             {
                 // add the endpoint and its request handler to the tree
                 const char* url_str = PyUnicode_AsUTF8(url);
-                url_insert(ROOT_NODE, url_str, global_value);
+                printf("Adding route %s...", url_str);
+                if (!url_insert(ROOT_NODE, url_str, global_value))
+                {
+                    printf(" FAILED!");
+                }
+                printf("\n");
             }
             Py_XDECREF(url);
         }
@@ -209,12 +168,12 @@ PyObject* ludicrous_server_run(PyObject* self, PyObject* args, PyObject* kwargs)
 
     if (c == NULL)
     {
-        //\TODO set error message
-        printf("Failed to bind on %s\n", BIND_STRING);
+        //\TODO set python error
+        printf("\nFailed to bind on %s\n", BIND_STRING);
         return NULL;
     }
 
-    printf("Server started on %s (CTRL+C to stop)\n", BIND_STRING);
+    printf("\nServer started on %s (CTRL+C to stop)\n", BIND_STRING);
     fflush(stdout);
 
     signal(SIGINT, signal_handler);

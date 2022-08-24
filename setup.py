@@ -17,6 +17,7 @@ def main():
                 [
                     "src/ludicrous.c",
                     "src/server/server.c",
+                    "src/server/urlnode.c",
                     "src/json/json_encode.c",
                     "lib/mongoose/mongoose.c"
                 ],
