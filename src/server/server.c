@@ -182,6 +182,9 @@ PyObject* ludicrous_server_run(PyObject* self, PyObject* args, PyObject* kwargs)
     // loop until interrupted, handle requests
     while(s_signo == 0) mg_mgr_poll(&mgr, 1000);
 
+    // clean up mongoose
+    mg_mgr_free(&mgr);
+
     // clean up the URL tree
     url_delete_node(ROOT_NODE);
 
