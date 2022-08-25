@@ -33,9 +33,11 @@ typedef struct _json_ser_buf {
 } JSONSerializationBuffer;
 
 // convert a Python dict object to a JSON C string
+// caller is responsible for freeing dynamically-allocated string
 char* json_encode(PyObject* json_dict);
 
 // convert a JSON C string to a Python dict object
+// caller is responsible for decref'ing the resulting object
 PyObject* json_decode(char* json_string);
 
 #endif
