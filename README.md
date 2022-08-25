@@ -15,7 +15,7 @@ ludicrous is free software licensed under the terms of the GNU General Public Li
    import ludicrous.server
 
    @ludicrous.route.route("/")
-   def hello():
+   def hello(request):
        # objects returned from routes will be automatically
        # serialized into JSON responses by ludicrous
        return({"hello": "world"})
