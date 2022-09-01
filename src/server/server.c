@@ -78,10 +78,22 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
                 PyDict_SetItemString(request_dict, "method", method_val);
             }
 
-            // TODO get POST data from body
-            //if (hm->body.len > 0)
-            //{
-            //}
+            // get POST data from request
+            PyObject* post_obj = NULL;
+            if (hm->body.len > 0)
+            {
+                post_obj = json_decode(hm->body.ptr, hm->body.len);
+            }
+
+            if (post_obj)
+            {
+                PyDict_SetItemString(request_dict, "POST", post_obj);
+            }
+            else
+            {
+                Py_INCREF(Py_None);
+                PyDict_SetItemString(request_dict, "POST", Py_None);
+            }
 
             // call route handler, then send encoded JSON back to client
             PyObject* response = PyObject_CallOneArg(endpoint_callback, request_dict);
@@ -90,7 +102,7 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
                 char* response_text = json_encode(response);
                 mg_http_reply(
                     c,
-                    200, // TODO return status code from
+                    200,
                     "Content-Type: application/json\r\n",
                     "%s",
                     response_text
@@ -103,10 +115,7 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
                 mg_http_reply(c, 501, "", "");
             }
 
-            // free method value
             Py_XDECREF(method_val);
-
-            // free request dict
             Py_DECREF(request_dict);
         }
         else

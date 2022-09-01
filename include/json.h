@@ -38,6 +38,6 @@ char* json_encode(PyObject* json_dict);
 
 // convert a JSON C string to a Python dict object
 // caller is responsible for decref'ing the resulting object
-PyObject* json_decode(char* json_string);
+PyObject* json_decode(const char* json_string, int str_len);
 
 #endif

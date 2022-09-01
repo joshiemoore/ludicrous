@@ -18,3 +18,44 @@
 //
 
 #include "json.h"
+#include "jsmn.h"
+
+
+static PyObject* _decode_tokens(const char* json_string, jsmntok_t* toks)
+{
+    if (toks->type == JSMN_PRIMITIVE)
+    {
+        // JSMN_PRIMITIVE: true, false, null, number
+    }
+    else if (toks->type == JSMN_STRING)
+    {
+        return PyUnicode_FromStringAndSize(json_string + toks->start, toks->end - toks->start);
+    }
+    else if (toks->type == JSMN_OBJECT)
+    {
+    }
+    else if (toks->type == JSMN_ARRAY)
+    {
+    }
+
+    // invalid token type
+    return NULL;
+}
+
+PyObject* json_decode(const char* json_string, int str_len)
+{
+    // initialize jsmn parser
+    jsmn_parser parser;
+    jsmn_init(&parser);
+
+    // perform the actual parsing
+    jsmntok_t toks[2048];
+    int result = jsmn_parse(&parser, json_string, str_len, toks, sizeof(toks) / sizeof(toks[0]));
+    if (result < 0)
+    {
+        return NULL;
+    }
+
+    // convert the parsed tokens to Python objects
+    return _decode_tokens(json_string, toks);
+}

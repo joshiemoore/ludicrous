@@ -19,6 +19,7 @@ def main():
                     "src/server/server.c",
                     "src/server/urlnode.c",
                     "src/json/json_encode.c",
+                    "src/json/json_decode.c",
                     "lib/mongoose/mongoose.c"
                 ],
                 include_dirs=[
