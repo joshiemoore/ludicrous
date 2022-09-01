@@ -74,7 +74,10 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
             PyObject* method_val = NULL;
             if (hm->method.len > 0)
             {
-                method_val = PyUnicode_FromStringAndSize(hm->method.ptr, hm->method.len);
+                method_val = PyUnicode_FromStringAndSize(
+                    hm->method.ptr,
+                    hm->method.len
+                );
                 PyDict_SetItemString(request_dict, "method", method_val);
             }
 
@@ -96,7 +99,10 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
             }
 
             // call route handler, then send encoded JSON back to client
-            PyObject* response = PyObject_CallOneArg(endpoint_callback, request_dict);
+            PyObject* response = PyObject_CallOneArg(
+                endpoint_callback,
+                request_dict
+            );
             if (response && response != Py_None)
             {
                 char* response_text = json_encode(response);
@@ -174,7 +180,10 @@ PyObject* ludicrous_server_run(PyObject* self, PyObject* args, PyObject* kwargs)
     {
         if (PyCallable_Check(global_value))
         {
-            PyObject* url = PyObject_GetAttr(global_value, PyUnicode_FromString("_LUDICROUS"));
+            PyObject* url = PyObject_GetAttr(
+                global_value,
+                PyUnicode_FromString("_LUDICROUS")
+            );
             if (url && PyUnicode_Check(url))
             {
                 // add the endpoint and its request handler to the tree
