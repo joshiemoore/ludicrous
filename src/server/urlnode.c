@@ -61,7 +61,6 @@ URLNode* url_create_node(char* endpoint, PyObject* callback)
 
     // add reference to Python callback function
     node->callback = callback;
-
     return node;
 }
 
@@ -121,7 +120,6 @@ int url_add_child(URLNode* node, URLNode* new_child)
             return 0;
         }
     }
-
     return 1;
 }
 
@@ -138,7 +136,6 @@ URLNode* url_find_child(URLNode* node, char* endpoint)
             return child;
         }
     }
-
     return NULL;
 }
 
@@ -208,6 +205,5 @@ URLNode* url_find(URLNode* root, struct mg_str url)
 
         tok = strtok(0, "/");
     }
-
     return root;
 }
