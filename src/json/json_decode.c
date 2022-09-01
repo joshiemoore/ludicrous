@@ -21,31 +21,44 @@
 #include "jsmn.h"
 
 
-static PyObject* _decode_tokens(const char* json_string, jsmntok_t* toks)
+static int _decode_tokens(const char* json_string, jsmntok_t* toks, PyObject** result)
 {
+    int total_decoded_toks = 0;
+
     if (toks->type == JSMN_PRIMITIVE)
     {
         // JSMN_PRIMITIVE: True, False, None, number
         switch(*(json_string + toks->start))
         {
             case 't':
-                Py_RETURN_TRUE;
+                Py_INCREF(Py_True);
+                *result = Py_True;
+                break;
             case 'f':
-                Py_RETURN_FALSE;
+                Py_INCREF(Py_False);
+                *result = Py_False;
+                break;
             case 'n':
-                Py_RETURN_NONE;
+                Py_INCREF(Py_None);
+                *result = Py_None;
+                break;
+            default:
+                // if it's not True, False, or None,
+                // then it must be a number
+                // TODO number decoding
+                break;
         }
 
-        // we haven't returned yet, so this primitive is a number
-        // TODO number parsing
+        return 1;
     }
     else if (toks->type == JSMN_STRING)
     {
         // JSMN_STRING: str
-        return PyUnicode_FromStringAndSize(
+        *result = PyUnicode_FromStringAndSize(
             json_string + toks->start,
             toks->end - toks->start
         );
+        return 1;
     }
     else if (toks->type == JSMN_ARRAY)
     {
@@ -54,18 +67,20 @@ static PyObject* _decode_tokens(const char* json_string, jsmntok_t* toks)
         PyObject* result_list = PyList_New(num_elements);
         if (!result_list)
         {
-            return NULL;
+            return 0;
         }
 
         for (int i = 0; i < num_elements; i++)
         {
-            PyObject* list_element = _decode_tokens(
+            PyObject* list_element = NULL;
+            total_decoded_toks += _decode_tokens(
                 json_string,
-                toks + i + 1
+                toks + i + 1,
+                &list_element
             );
             if (!list_element)
             {
-                return NULL;
+                return 0;
             }
 
             // I will leave off the IndexError check because
@@ -78,16 +93,45 @@ static PyObject* _decode_tokens(const char* json_string, jsmntok_t* toks)
                 list_element
             );
         }
-        return result_list;
+        *result = result_list;
+        return total_decoded_toks + 1;
     }
     else if (toks->type == JSMN_OBJECT)
     {
         // JSMN_OBJECT: dict
-        // TODO
-    }
+        const int num_elements = toks->size;
+        PyObject* result_dict = PyDict_New();
 
-    // invalid token type
-    return NULL;
+        for (int i = 0; i < num_elements; i++)
+        {
+            PyObject* key = NULL;
+            total_decoded_toks += _decode_tokens(
+                json_string,
+                toks + total_decoded_toks + 1,
+                &key
+            );
+            if (!key)
+            {
+                return 0;
+            }
+
+            PyObject* value = NULL;
+            total_decoded_toks += _decode_tokens(
+                json_string,
+                toks + total_decoded_toks + 1,
+                &value
+            );
+            if (!value)
+            {
+                return 0;
+            }
+
+            PyDict_SetItem(result_dict, key, value);
+        }
+        *result = result_dict;
+        return total_decoded_toks + 1;
+    }
+    return 0;
 }
 
 PyObject* json_decode(const char* json_string, int str_len)
@@ -107,9 +151,23 @@ PyObject* json_decode(const char* json_string, int str_len)
     );
     if (result < 0)
     {
+        // failed to parse JSON
+        // TODO set error
         return NULL;
     }
 
-    // convert the parsed tokens to Python objects
-    return _decode_tokens(json_string, toks);
+    // decode the parsed tokens to Python objects
+    PyObject* py_result = NULL;
+    _decode_tokens(
+        json_string,
+        toks,
+        &py_result
+    );
+    if (!py_result)
+    {
+        // failed to decode JSON
+        // TODO set error
+        return NULL;
+    }
+    return py_result;
 }
