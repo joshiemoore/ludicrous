@@ -32,7 +32,7 @@ ludicrous is free software licensed under the terms of the GNU General Public Li
 ludicrous doesn't currently support sending JSON data to the server with POST requests, but that is coming very soon!
 
 ## Build from source
-1. Clone the repository: `$ git clone https://github.com/joshiemoore/ludicrous.git`
+1. Clone the repository: `$ git clone --recursive https://github.com/joshiemoore/ludicrous.git`
 
 2. Enter the directory: `$ cd ludicrous`
 
