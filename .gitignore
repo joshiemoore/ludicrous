@@ -3,5 +3,6 @@ dist/
 *.egg-info
 *.o
 *.so
+__pycache__
 
 *.swp
