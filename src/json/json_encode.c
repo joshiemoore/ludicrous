@@ -41,15 +41,14 @@ void _init_json_buffer(JSONSerializationBuffer* buf)
 // n:   the number of bytes to copy
 void _buf_append(JSONSerializationBuffer* buf, const char* str, int n)
 {
-    if (buf->index + n >= buf->size)
+    int new_size = buf->size;
+    while (buf->index + n >= new_size)
     {
-        // grow buffer as necessary
-        int new_size = buf->size * 2;
-        while (buf->index + n >= new_size - 1)
-        {
-            new_size *= 2;
-        }
-
+        // grow serialization buffer as necessary
+        new_size *= 2;
+    }
+    if (new_size > buf->size)
+    {
         buf->data = (char*) realloc(buf->data, new_size);
         buf->size = new_size;
     }
