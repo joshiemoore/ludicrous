@@ -205,5 +205,7 @@ URLNode* url_find(URLNode* root, struct mg_str url)
 
         tok = strtok(0, "/");
     }
+
+    free(url_copy);
     return root;
 }

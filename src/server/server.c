@@ -122,6 +122,7 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
             }
 
             Py_XDECREF(method_val);
+            Py_DECREF(response);
             Py_DECREF(request_dict);
         }
         else
