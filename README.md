@@ -1,5 +1,5 @@
 # ludicrous
-ludicrous is the fastest JSON API framework for Python by orders of magnitude. Light speed was too slow, so we had to go straight to LUDICROUS SPEED!
+ludicrous is the fastest web framework for Python by orders of magnitude. Light speed was too slow, so we had to go straight to LUDICROUS SPEED!
 
 This library is currently very early in development, and should be considered unstable and unready for production. For the time being, the library and documentation are subject to breaking change with little notice.
 
