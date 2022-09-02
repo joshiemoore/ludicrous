@@ -29,6 +29,8 @@ ludicrous is free software licensed under the terms of the GNU General Public Li
 
 4. Use your web browser to navigate to `http://localhost:8000/` and observe the JSON response.
 
+See [docs/EXAMPLES.md](docs/EXAMPLES.md) for some examples to help get you started.
+
 ## Build from source
 1. Clone the repository: `$ git clone --recursive https://github.com/joshiemoore/ludicrous.git`
 
