@@ -1,5 +1,5 @@
 # ludicrous
-ludicrous is the fastest Python web framework in terms of single-process performance. Light speed was too slow, so we had to go straight to LUDICROUS SPEED!
+ludicrous is the fastest Python web framework in terms of single-process performance, primarily intended for creating fast JSON APIs. Light speed was too slow, so we had to go straight to LUDICROUS SPEED!
 
 This library is currently very early in development, and should be considered unstable and unready for production. For the time being, the library and documentation are subject to breaking change with little notice.
 
@@ -18,7 +18,7 @@ ludicrous is free software licensed under the terms of the GNU General Public Li
    def hello(request):
        # objects returned from routes will be automatically
        # serialized into JSON responses by ludicrous
-       return({"hello": "world"})
+       return {"hello": "world"}
 
    if __name__ == "__main__":
        # host and port kwargs are optional
@@ -41,9 +41,9 @@ ludicrous is free software licensed under the terms of the GNU General Public Li
 Note that ludicrous is intended for development and deployment on GNU/Linux and is not tested on any other operating systems.
 
 ## Performance
-ludicrous is being developed around a custom JSON serializer which converts Python objects directly into JSON C strings. We plan to develop ludicrous with a very fast core featureset implemented in C, along with additional opt-in modules that run slower but provide more features than the high-performance core. This plan will become clearer to understand as more features are added.
+ludicrous is being developed around a custom JSON serializer which converts Python objects directly into JSON C strings.
 
-Preliminary testing on my machine (12th Gen Intel Core i5-1240P) using [wrk](https://github.com/wg/wrk) shows that ludicrous is able to consistently sustain more than 100,000 requests per second. For simple responses like the hello world sample above, ludicrous is able to average around 130,000+ requests per second.
+Preliminary testing on my machine (12th Gen Intel Core i5-1240P) using [wrk](https://github.com/wg/wrk) shows that ludicrous is able to consistently sustain hundreds of thousands of requests per second.
 
 Below is a selection of wrk results for endpoints returning `{"hello": "world"}` in a few frameworks. Each framework was tested 5 times, and the best of the 5 results is displayed here. The main point of interest is the `Requests/sec` field.
 
