@@ -129,15 +129,10 @@ void _serialize_object(JSONSerializationBuffer* buf, PyObject* object)
         const char* utf8_str = PyUnicode_AsUTF8AndSize(object, &str_size);
         if (utf8_str)
         {
-            for (int i = 0; i < str_size; i++)
-            {
-                if (utf8_str[i] == '"')
-                {
-                    // escape quotation marks
-                    _buf_append(buf, "\\", 1);
-                }
-                _buf_append(buf, utf8_str + i, 1);
-            }
+            // We will hold off on escaping quotes for now, for performance
+            // reasons. The user should escape quotes in their own JSON
+            // strings as necessary.
+            _buf_append(buf, utf8_str, str_size);
         }
 
         _buf_append(buf, "\"", 1);
