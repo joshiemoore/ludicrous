@@ -3,3 +3,4 @@ graft include
 graft lib
 graft ludicrous
 graft benchmarks
+graft docs
