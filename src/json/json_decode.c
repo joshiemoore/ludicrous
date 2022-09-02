@@ -28,6 +28,8 @@ static int _decode_tokens(const char* json_string, jsmntok_t* toks, PyObject** r
     if (toks->type == JSMN_PRIMITIVE)
     {
         // JSMN_PRIMITIVE: True, False, None, number
+        double double_val;
+        long long_val;
         switch(*(json_string + toks->start))
         {
             case 't':
@@ -45,7 +47,18 @@ static int _decode_tokens(const char* json_string, jsmntok_t* toks, PyObject** r
             default:
                 // if it's not True, False, or None,
                 // then it must be a number
-                // TODO number decoding
+                sscanf(json_string + toks->start, "%lf", &double_val);
+                long_val = (long)double_val;
+                if (long_val == double_val)
+                {
+                    // if the long cast is equal to the double, then it's an integer
+                    *result = PyLong_FromLong(long_val);
+                }
+                else
+                {
+                    // otherwise, it's floating point
+                    *result = PyFloat_FromDouble(double_val);
+                }
                 break;
         }
 
