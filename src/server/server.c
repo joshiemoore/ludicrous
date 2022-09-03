@@ -112,6 +112,8 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
                 PyObject* header_key = PyUnicode_FromStringAndSize(header.name.ptr, header.name.len);
                 PyObject* header_val = PyUnicode_FromStringAndSize(header.value.ptr, header.value.len);
                 PyDict_SetItem(header_dict, header_key, header_val);
+                Py_DECREF(header_val);
+                Py_DECREF(header_key);
             }
             PyDict_SetItemString(request_dict, "HEADERS", header_dict);
 
@@ -138,8 +140,9 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
                 mg_http_reply(c, 501, "", "");
             }
 
-            Py_XDECREF(method_val);
             Py_DECREF(response);
+            Py_DECREF(header_dict);
+            Py_XDECREF(method_val);
             Py_DECREF(request_dict);
         }
         else
