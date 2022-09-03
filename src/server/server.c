@@ -78,7 +78,7 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
                     hm->method.ptr,
                     hm->method.len
                 );
-                PyDict_SetItemString(request_dict, "method", method_val);
+                PyDict_SetItemString(request_dict, "METHOD", method_val);
             }
 
             // get POST data from request
@@ -97,6 +97,23 @@ static void fn(struct mg_connection* c, int ev, void* ev_data, void* fn_data)
                 Py_INCREF(Py_None);
                 PyDict_SetItemString(request_dict, "POST", Py_None);
             }
+
+            // get headers from request
+            PyObject* header_dict = PyDict_New();
+            if (!header_dict)
+            {
+                mg_http_reply(c, 500, "", "");
+                return;
+            }
+            for (int i = 0; i < MG_MAX_HTTP_HEADERS; i++)
+            {
+                struct mg_http_header header = hm->headers[i];
+                if (!header.name.ptr || !header.value.ptr) break;
+                PyObject* header_key = PyUnicode_FromStringAndSize(header.name.ptr, header.name.len);
+                PyObject* header_val = PyUnicode_FromStringAndSize(header.value.ptr, header.value.len);
+                PyDict_SetItem(header_dict, header_key, header_val);
+            }
+            PyDict_SetItemString(request_dict, "HEADERS", header_dict);
 
             // call route handler, then send encoded JSON back to client
             PyObject* response = PyObject_CallOneArg(
