@@ -4,7 +4,7 @@ from setuptools import setup, Extension, find_packages
 def main():
     setup(
         name="ludicrous",
-        version="0.2.0",
+        version="0.3.0",
         description="ludicrous speed JSON API framework for Python",
         author="Joshua Moore",
         author_email="jxm5210@g.rit.edu",
