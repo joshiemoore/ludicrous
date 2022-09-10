@@ -24,7 +24,8 @@ def main():
                 ],
                 include_dirs=[
                     "include",
-                    "lib/mongoose"
+                    "lib/mongoose",
+                    "lib/jsmn"
                 ]
             )
         ],
